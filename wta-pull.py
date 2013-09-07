@@ -1,10 +1,22 @@
 #!/usr/bin/python3
 
 from html.parser import HTMLParser
-import urllib.request,sys
+import urllib.request,sys,time,math
 
 
-keyword = ['Roundtrip', 'Elevation Gain','Highest Point','BCRT 2010']
+start_point = [47.643649, -122.142878]
+keyword = ['Roundtrip', 'Elevation Gain','Highest Point','Map it']
+
+
+def haversine(latit1,long1, latit2, long2):
+    long1, latit1, long2, latit2 = map(math.radians, [long1, latit1, long2, latit2])
+    #some preparation for x,y
+    long_d = long2-long1
+    latit_d = latit2 - latit1
+    a = math.sin(latit_d / 2) ** 2 + math.cos(latit1) * math.cos(latit2) * math.sin(long_d/2)**2
+    c = 2 * math.asin(math.sqrt(a))
+    dist = 6372.81 * c
+    return dist
 
 
 #used with conjuction with python docs
@@ -36,7 +48,7 @@ class BestHTMLParser(HTMLParser):
                 #no error
                 self.state = str_choice
                 if(self.state == keyword[3]):
-                    self.loop_forward = 6
+                    self.loop_forward = 9
                 else:
                     self.loop_forward = 3
         if(self.loop_forward == 1):
@@ -71,4 +83,9 @@ for http_link in full_links:
     rec_str = f.read().decode('utf-8')
     #print('Recieved data ' + str(len(rec_str)))
     my_parser.feed(rec_str)
-    print(my_parser.get_info())
+    #print(my_parser.get_info())
+    deep_info = my_parser.get_info()
+
+    deep_info[4] = str(0.621371 * haversine(start_point[0], start_point[1],float(deep_info[4]), float(deep_info[5]))) + ' mi'
+    print(deep_info[:-1])
+    time.sleep(1) #don't hammer their site
