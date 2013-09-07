@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from html.parser import HTMLParser
-import urllib.request
+import urllib.request,sys
 
 
 keyword = ['Roundtrip', 'Elevation Gain','Highest Point','BCRT 2010']
@@ -20,6 +20,8 @@ class BestHTMLParser(HTMLParser):
     def handle_data(self, data):
         self.found = False
         self.loop = self.loop+1
+        if(self.loop == 4):
+            print(data[:-31])
         for str_choice in keyword:
             if(str_choice in data):  #check if keyword is located in data
 #                print('found ' + str_choice + ' on ' + str(self.loop))
@@ -48,9 +50,20 @@ class BestHTMLParser(HTMLParser):
         if(self.loop_forward!=0):
             self.loop_forward=self.loop_forward-1
 
+print('Main')
+if(len(sys.argv) != 2):
+    print('Usage: ./wta_pull http://etc')
+    print('Usage: ./wta_pull hike-name')
+    sys.exit(5)
+full_link = ''
+look_for='http'
+if(sys.argv[1][0:len(look_for)] == look_for):
+    full_link = sys.argv[1]
+else:
+    full_link= 'http://www.wta.org/go-hiking/hikes/' + sys.argv[1]
 my_parser = BestHTMLParser()
-print('Opening connection to');
-f = urllib.request.urlopen('http://www.wta.org/go-hiking/hikes/rainbow-lake-1')
+print('Opening connection to ' + full_link);
+f = urllib.request.urlopen(full_link)
 print('Connection Open')
 rec_str = f.read().decode('utf-8')
 print('Recieved data ' + str(len(rec_str)))
