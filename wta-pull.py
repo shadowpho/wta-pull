@@ -5,7 +5,7 @@ import urllib.request,sys
 
 
 keyword = ['Roundtrip', 'Elevation Gain','Highest Point','BCRT 2010']
-information = ['','','', '','','']
+
 
 #used with conjuction with python docs
 #simple state machine
@@ -14,16 +14,19 @@ information = ['','','', '','','']
 #name0-3 found 0-3. If find other 0-3 thne ERROR
 #
 class BestHTMLParser(HTMLParser):
+    information = ['','','', '','','']
     loop = 0
     loop_forward = 0
     state = 'None'
     second_loop = 0
     second_state_machine=0
+    def get_info(self):
+        return self.information
     def handle_data(self, data):
         self.found = False
         self.loop = self.loop+1
         if(self.loop == 4):
-            information[0]=data[:-31]
+            self.information[0]=data[:-31]
             self.second_state_machine+=1
         for str_choice in keyword:
             if(str_choice in data):  #check if keyword is located in data
@@ -39,7 +42,7 @@ class BestHTMLParser(HTMLParser):
         if(self.loop_forward == 1):
             #FOUND DATA
             #print('found ' + self.state +' ' + data)
-            information[self.second_state_machine] = data
+            self.information[self.second_state_machine] = data
             self.second_state_machine+=1
 
             if(self.state is keyword[3]): #found COORDs
@@ -56,23 +59,16 @@ class BestHTMLParser(HTMLParser):
             self.loop_forward=self.loop_forward-1
 
 #print('Main')
-if(len(sys.argv) != 2):
-    print('Usage: ./wta_pull http://etc')
-    print('Usage: ./wta_pull hike-name')
+if(len(sys.argv) < 2):
+    print('Usage: ./wta_pull http://etc1 http://etc2')
     sys.exit(5)
-full_link = ''
-look_for='http'
-if(sys.argv[1][0:len(look_for)] == look_for):
-    full_link = sys.argv[1]
-else:
-    full_link= 'http://www.wta.org/go-hiking/hikes/' + sys.argv[1]
-my_parser = BestHTMLParser()
-#print('Opening connection to ' + full_link);
-f = urllib.request.urlopen(full_link)
-#print('Connection Open')
-rec_str = f.read().decode('utf-8')
-#print('Recieved data ' + str(len(rec_str)))
-
-my_parser.feed(rec_str)
-
-print(information)
+full_links = sys.argv[1:]
+for http_link in full_links:
+    my_parser = BestHTMLParser()
+    #print('Opening connection to ' + full_link);
+    f = urllib.request.urlopen(http_link)
+    #print('Connection Open')
+    rec_str = f.read().decode('utf-8')
+    #print('Recieved data ' + str(len(rec_str)))
+    my_parser.feed(rec_str)
+    print(my_parser.get_info())
