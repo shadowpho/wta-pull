@@ -26,7 +26,7 @@ def haversine(latit1,long1, latit2, long2):
 #name0-3 found 0-3. If find other 0-3 thne ERROR
 #
 class BestHTMLParser(HTMLParser):
-    information = ['','','', '','','']
+    information = ['','','', '','','','']
     loop = 0
     loop_forward = 0
     state = 'None'
@@ -86,6 +86,6 @@ for http_link in full_links:
     #print(my_parser.get_info())
     deep_info = my_parser.get_info()
 
-    deep_info[4] = str(0.621371 * haversine(start_point[0], start_point[1],float(deep_info[4]), float(deep_info[5]))) + ' mi'
-    print(deep_info[:-1])
+    deep_info[6] = str(0.621371 * haversine(start_point[0], start_point[1],float(deep_info[4]), float(deep_info[5]))) + ' mi'
+    print(deep_info)
     time.sleep(1) #don't hammer their site
